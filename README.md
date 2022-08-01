@@ -1,19 +1,10 @@
-# Overview
+# Introduction
+Time by time, people are suffocated with the number of clothes choices and find difficulties on determining the right clothes for themselves. Hence, this project is created. This is a system that recommends clothes based on the input of images provided by the user themself. Those images may be something that the person sees often or just glances at, but the image has attracted a certain amount of interest and that person wants to search for similar products. The project uses neural networks to process the images from DeepFashion Dataset and k-NN to generate the final recommendations.
 
-In this project, I'm going to create AI system that provides daily recommendations to users with deep learning, based on personal preferences and fashion trends, using regular photos of the user wearing the clothes or photos of user clothes in general. Thus, the system will require minimum effort on a user's end. Recommendations are drawn from the user-owned garments. The method broadly involves two algorithms - preparation of user inventory using clothing detection on user photos and recommendation of outfit from the wardrobe. At a minimum, the user is required to upload his photos, and the rest is taken care of by the algorithm which can yield convincing outfit recommendations based on fashion trends every day.
+# Methodology
+In this project, we propose a model that uses ResNet50 Model, k-nearest neighbors algorithm, Yolov5, BeautifulSoup and Selenium. Initial, the ResNet50 model are trained with our dataset and then another dataset containing the information and images which is crawled from some online selling website is created. When the user input searching image, that image goes through the yolov5 model to extract the clothing pieces and determine which category it belongs to. Finally, k-nearest neighbor's algorithm is used to find the most relevant products based on the input extracting image and recommendations are generated.
 
-# What problem does it solve?
+# Dataset
+DeepLearning2 is used for two problems. First, create a dataset to train the model to recognize which category the clothes belongs to.  Second, DeepLearning2 is suitable for training yolov5 in category recognition and bounding box in an inputed image. This dataset is categorized into 13 popular categories.
 
-The System addresses the following problems:
-
-- According to The Telegraph, a recent study found that an average person spends almost a year in a lifetime in deciding what to wear.
-- Even if the time taken each day is justified, frustrations associated with picking an outfit cannot be ignored.
-- Given ten items in each category of pants, shirt, jacket, shoes, watch and accessories, the total number of possible combinations turn out to be 1 million which is something humans cannot wrap their minds around.
-
-# Stage of development
-
-1. Clothing Categorization
-In the first part of the work, user's clothes are categorize into different categories of clothing items using. The network is trained on Deep Fashion dataset.
-
-2. Compatibility Training
-The previous network acts as a data generating stream for this network. For the training, the program is fed with a number of fashion styles that were compatible with current fashion. Based on the training data, the network generates a universal embedding that has learned the fashion style. All possible matches of users clothing are tested against the universal style embedding. The model is trained on Polyvore dataset.
+[https://github.com/switchablenorms/DeepFashion2]
