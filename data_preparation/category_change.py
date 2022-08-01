@@ -1,5 +1,6 @@
 """
-Since the dataset contains 13 categories, we need to narrow down to 5 categories: shirt, outwear, short, skirt and dress
+Since the dataset contains 13 categories, we need to narrow down to 5 categories: shirt, outwear, 
+short, skirt and dress
 """
 
 import json
