@@ -1,3 +1,4 @@
 __pycache__/
 .vscode/
 /datasets/*/
+/model/*.h5
