@@ -6,3 +6,5 @@ tensorflow~=2.8.0
 pandas~=1.4.2
 scikit-learn~=1.1.0
 opencv-python~=4.5.5.64
+selenium~=4.3.0
+bs4~=0.0.1
