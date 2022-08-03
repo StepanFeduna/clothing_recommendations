@@ -1,0 +1,8 @@
+train: ../datasets/yolo_train_dataset
+val: ../datasets/yolo_valid_dataset
+
+# number of classes
+nc: 5
+
+# class names
+names: ["shirt", "outwear", "short", "skirt", "dress"]

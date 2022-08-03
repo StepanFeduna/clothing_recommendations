@@ -1,6 +1,6 @@
 """
 Prepare the data for training the yolov5 model
-Take images from DeepLearning dataset so that each categories has 14_000 training and 2_153 validation components
+Take images from DeepLearning dataset so that each categories has 5000 training and 1500 validation components
 """
 
 import os
@@ -25,8 +25,8 @@ os.makedirs(YOLO_VALID_FOLDER, exist_ok=True)
 
 DatasetInfo = namedtuple("DatasetInfo", ["data_no", "dataset_folder", "json_path", "yolo_dataset_folder", "num_of_category_images"])
 
-train_dataset_info = DatasetInfo(TRAIN_NO, TRAIN_FOLDER, TRAIN_JSON_PATH, YOLO_TRAIN_FOLDER, 14_000)
-valid_dataset_info = DatasetInfo(VALID_NO, VALID_FOLDER, VALID_JSON_PATH, YOLO_VALID_FOLDER, 2_153)
+train_dataset_info = DatasetInfo(TRAIN_NO, TRAIN_FOLDER, TRAIN_JSON_PATH, YOLO_TRAIN_FOLDER, 5000)
+valid_dataset_info = DatasetInfo(VALID_NO, VALID_FOLDER, VALID_JSON_PATH, YOLO_VALID_FOLDER, 1500)
 
 for dataset_info in (train_dataset_info, valid_dataset_info):
     data = []
