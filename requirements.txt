@@ -9,7 +9,11 @@ pandas~=1.4.2
 scikit-learn~=1.1.0
 opencv-python~=4.5.5.64
 matplotlib>=3.2.2
-
+selenium~=4.3.0
+bs4~=0.0.1
+python-multipart~=0.0.5
+uuid~=1.30
+sqlmodel~=0.0.6
 
 # YOLOv5 requirements
 
@@ -34,5 +38,3 @@ seaborn>=0.11.0
 ipython  # interactive notebook
 psutil  # system utilization
 thop>=0.1.1  # FLOPs computation
-selenium~=4.3.0
-bs4~=0.0.1
