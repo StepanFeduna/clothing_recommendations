@@ -14,6 +14,8 @@ from tensorflow.keras import callbacks
 from tensorflow.keras.applications import ResNet50V2
 import matplotlib.pyplot as plt
 import numpy as np
+import tensorflow_io as tfio
+from sqlmodel import create_engine
 
 if not tf.config.list_physical_devices("GPU"):
     print("No GPU was detected. CNNs can be very slow without a GPU.")
@@ -26,6 +28,18 @@ IMAGE_WIDTH = 224
 IMAGE_HEIGHT = 224
 IMAGE_SIZE = (IMAGE_WIDTH, IMAGE_HEIGHT)
 IMAGE_CHANNELS = 3
+
+engine = create_engine("postgresql://postgres:umimuv27@localhost:5432/clothing_db")
+train_set = tfio.experimental.IODataset.from_sql(
+    query="SELECT categories, image FROM TrainDeepFashion;", endpoint=engine
+)
+
+validation_set = tfio.experimental.IODataset.from_sql(
+    query="SELECT categories, image FROM ValidationDeepFashion;", endpoint=engine
+)
+
+
+print(train_set.element_spec)
 
 
 def output_model(model):
@@ -74,6 +88,7 @@ traingene = ImageDataGenerator(
     width_shift_range=0.2,
     height_shift_range=0.2,
     fill_mode="nearest",
+    
 )
 validgene = ImageDataGenerator(rescale=1.0 / 255)
 
