@@ -4,7 +4,7 @@ Contain all Database Models
 
 from typing import Optional, List
 
-from sqlmodel import Column, Field, SQLModel, ARRAY, INTEGER, FLOAT
+from sqlmodel import Column, Field, SQLModel, ARRAY, INTEGER
 
 
 class ClothesCategory(SQLModel, table=True):
@@ -39,11 +39,11 @@ class ResNet50v2Model(SQLModel, table=True):
     """Table that contains ResNet50 model training results"""
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    model: str = None
-    best_model: str = None
-    results_image: str = None
-    accuracy: List = Field(default=None, sa_column=Column(ARRAY(FLOAT)))
-    val_accuracy: List = Field(default=None, sa_column=Column(ARRAY(FLOAT)))
-    loss: List = Field(default=None, sa_column=Column(ARRAY(FLOAT)))
-    val_loss: List = Field(default=None, sa_column=Column(ARRAY(FLOAT)))
-    
+    epoch: int
+    model: str
+    best_model: str
+    results_image: str
+    accuracy: float
+    val_accuracy: float
+    loss: float
+    val_loss: float

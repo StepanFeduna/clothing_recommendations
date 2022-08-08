@@ -108,7 +108,8 @@ def fill_table(table_name, data_dict):
 
         session.commit()
 
-def main():
+
+if __name__ == "__main__":
     create_db_and_tables()
 
     fill_table(ClothesCategory, clothes_category())
@@ -132,6 +133,3 @@ def main():
             VALIDATION_CROPPED_IMAGES_PATH,
         ),
     )
-
-if __name__ == "__main__":
-    main()
