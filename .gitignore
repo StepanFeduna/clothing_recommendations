@@ -4,3 +4,4 @@ __pycache__/
 /model/*.h5
 **.cache
 **.log
+database.py

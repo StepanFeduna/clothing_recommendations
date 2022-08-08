@@ -105,13 +105,13 @@ async def delete_upload_file():
 
 @app.get("/images/")
 async def clothes_detection():
-    """Search for clothes on image"""
+    """Search for clothes object's on image"""
     pass
 
 
 @app.post("/images/")
 async def choose_clothes():
-    """Choose which clothes user want to find"""
+    """Choose which clothes user want to find if clothes object's > 1"""
     pass
 
 

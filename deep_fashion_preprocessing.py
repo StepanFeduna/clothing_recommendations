@@ -5,10 +5,14 @@ Used to transfer DeepFashion dataset from json files to PostgreSql
 import os
 import json
 import fnmatch
+import uuid
 
-from typing import Optional, List
+from sqlmodel import Session
 
-from sqlmodel import Column, Field, Session, SQLModel, create_engine, ARRAY, INTEGER
+import cv2
+
+from .database.database import create_db_and_tables, engine
+from .database.db_tables import ClothesCategory, TrainDeepFashion, ValidationDeepFashion
 
 
 TRAIN_JSON_PATH = r"datasets/train/annos/"
@@ -22,46 +26,13 @@ VALIDATION_IMAGES_NUMBER = len(
     fnmatch.filter(os.listdir(VALIDATION_IMAGES_PATH), "*.jpg")
 )
 
-
-class ClothesCategory(SQLModel, table=True):
-    """Table that alias extendable clothes category names with generic ones"""
-
-    extended_category: str = Field(default=None, primary_key=True)
-    generic_category: str = None
+TRAIN_CROPPED_IMAGES_PATH = r"datasets/train/cropped_image/"
+VALIDATION_CROPPED_IMAGES_PATH = r"datasets/validation/cropped_image/"
+os.makedirs(TRAIN_CROPPED_IMAGES_PATH, exist_ok=True)
+os.makedirs(VALIDATION_CROPPED_IMAGES_PATH, exist_ok=True)
 
 
-class DeepFashionBase(SQLModel):
-    """Template for DeepFashion dataset tables"""
-
-    boundingbox: List = Field(sa_column=Column(ARRAY(INTEGER)))
-    image: str
-    categories: str = Field(foreign_key="clothescategory.extended_category")
-
-
-class TrainDeepFashion(DeepFashionBase, table=True):
-    """Table with train data of DeepFashion dataset"""
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-
-
-class ValidationDeepFashion(DeepFashionBase, table=True):
-    """Table with validation data of DeepFashion dataset"""
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-
-
-engine = create_engine(
-    "postgresql://postgres:umimuv27@localhost:5432/clothing_db", echo=True
-)
-
-
-def create_db_and_tables():
-    """Set connection with DB and create tables"""
-    SQLModel.metadata.drop_all(engine)
-    SQLModel.metadata.create_all(engine)
-
-
-def preproces_data(json_path, image_path, num_of_images):
+def preproces_data(json_path, image_path, num_of_images, cropped_image_path):
     """Extract data from json files"""
 
     for num in range(1, num_of_images + 1):
@@ -77,7 +48,28 @@ def preproces_data(json_path, image_path, num_of_images):
                 bbox = [box[0], box[1], box[2], box[3]]
                 cat = temp[i]["category_name"]
 
-                yield {"categories": cat, "boundingbox": bbox, "image": image_name}
+                image = cv2.imread(image_name)
+                cropped_image_name = cropped_image_path + f"{uuid.uuid4()}" + ".jpg"
+
+                try:
+                    cv2.imwrite(
+                        cropped_image_name, image[box[1] : box[3], box[0] : box[2]]
+                    )
+                except AssertionError:
+                    print(
+                        f"Can't write from {image_name}, check bounding boxes correctness!"
+                    )
+                    continue
+
+                yield {
+                    "categories": cat,
+                    "boundingbox": bbox,
+                    "image": image_name,
+                    "cropped_image": cropped_image_name,
+                }
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 def clothes_category():
@@ -116,20 +108,30 @@ def fill_table(table_name, data_dict):
 
         session.commit()
 
-
-if __name__ == "__main__":
+def main():
     create_db_and_tables()
 
     fill_table(ClothesCategory, clothes_category())
 
     fill_table(
         TrainDeepFashion,
-        preproces_data(TRAIN_JSON_PATH, TRAIN_IMAGES_PATH, TRAIN_IMAGES_NUMBER),
+        preproces_data(
+            TRAIN_JSON_PATH,
+            TRAIN_IMAGES_PATH,
+            TRAIN_IMAGES_NUMBER,
+            TRAIN_CROPPED_IMAGES_PATH,
+        ),
     )
 
     fill_table(
         ValidationDeepFashion,
         preproces_data(
-            VALIDATION_JSON_PATH, VALIDATION_IMAGES_PATH, VALIDATION_IMAGES_NUMBER
+            VALIDATION_JSON_PATH,
+            VALIDATION_IMAGES_PATH,
+            VALIDATION_IMAGES_NUMBER,
+            VALIDATION_CROPPED_IMAGES_PATH,
         ),
     )
+
+if __name__ == "__main__":
+    main()
