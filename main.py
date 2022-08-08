@@ -52,7 +52,7 @@ def get_embedding(model, imagename):
     return model.predict(x).reshape(-1)
 
 
-restored_model = tf.keras.models.load_model("model/bestmodel.h5")
+restored_model = tf.keras.models.load_model("resnet50_model/bestmodel.h5")
 secondmodel = Model(
     inputs=restored_model.input, outputs=restored_model.layers[-4].output
 )
@@ -74,7 +74,7 @@ async def root():
     return {"message": "Welcome to the Clothing Recommendation API!"}
 
 
-@app.post("/images/")
+@app.post("/upload/")
 async def create_upload_file(file: UploadFile = File(...)):
     """Upload image file"""
     file.filename = f"{uuid.uuid4()}.jpg"
@@ -87,7 +87,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     return {"filename": file.filename}
 
 
-@app.get("/images/")
+@app.get("/upload/")
 async def read_upload_file():
     """Display uploaded filey"""
     files = os.listdir(IMAGEDIR)
@@ -97,25 +97,25 @@ async def read_upload_file():
     return FileResponse(path)
 
 
-@app.delete("/images/")
+@app.delete("/upload/")
 async def delete_upload_file():
     """delete uploaded image"""
     pass
 
 
-@app.get("/images/")
+@app.get("/upload/")
 async def clothes_detection():
     """Search for clothes object's on image"""
     pass
 
 
-@app.post("/images/")
+@app.post("/upload/")
 async def choose_clothes():
     """Choose which clothes user want to find if clothes object's > 1"""
     pass
 
 
-@app.get("/images/")
+@app.get("/upload/")
 async def recommend_clothes():
     """Recomend similar clothes"""
     pass
