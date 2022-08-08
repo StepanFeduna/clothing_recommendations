@@ -1,7 +1,7 @@
 __pycache__/
 .vscode/
 /datasets/*/
-/model/*.h5
+**.h5
 **.cache
 **.log
 database.py
