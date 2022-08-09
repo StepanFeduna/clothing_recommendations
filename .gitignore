@@ -4,4 +4,3 @@ __pycache__/
 **.h5
 **.cache
 **.log
-database.py

@@ -21,8 +21,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-from sqlmodel import Session
-from database.database import create_db_and_tables, engine, engine_read
+from database.database import create_db_and_tables, engine_read, fill_table
 from database.db_tables import ResNet50v2Model
 
 if not tf.config.list_physical_devices("GPU"):
@@ -117,6 +116,7 @@ def plot_image(*args):
 
 def prepare_tf_dataset():
     """Prepare detasets for model training"""
+
     # Augment images to increase training performance
     traingene = ImageDataGenerator(
         rotation_range=20,
@@ -141,6 +141,8 @@ def prepare_tf_dataset():
         class_mode="categorical",
         batch_size=64,
         shuffle=True,
+        seed=123,
+        interpolation="lanczos",
     )
 
     # Load validation images dataset
@@ -152,6 +154,8 @@ def prepare_tf_dataset():
         class_mode="categorical",
         batch_size=32,
         shuffle=False,
+        seed=123,
+        interpolation="lanczos",
     )
 
     return train_set, validation_set
@@ -216,17 +220,6 @@ def model_training():
     return epochs, accuracy, val_accuracy, loss, val_loss
 
 
-def fill_table(table_name, data_dict):
-    """Fill DB table with data"""
-    with Session(engine) as session:
-        session.bulk_insert_mappings(
-            table_name,
-            data_dict,
-        )
-
-        session.commit()
-
-
 def data_dict_gen():
     """Generate training results dictionary"""
 
@@ -238,7 +231,7 @@ def data_dict_gen():
 
     for epoch in range(epochs):
         yield {
-            "epoch": epoch,
+            "epoch": epoch + 1,
             "model": model,
             "best_model": best_model,
             "results_image": results_image,
@@ -251,4 +244,4 @@ def data_dict_gen():
 
 if __name__ == "__main__":
     create_db_and_tables()
-    fill_table(ResNet50v2Model, data_dict_gen())
+    fill_table(ResNet50v2Model, data_dict_gen(), truncate=True)

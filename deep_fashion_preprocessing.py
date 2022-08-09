@@ -5,14 +5,12 @@ Used to transfer DeepFashion dataset from json files to PostgreSql
 import os
 import json
 import fnmatch
-import uuid
 
-from sqlmodel import Session
 
 import cv2
 
-from .database.database import create_db_and_tables, engine
-from .database.db_tables import ClothesCategory, TrainDeepFashion, ValidationDeepFashion
+from database.database import create_db_and_tables, fill_table
+from database.db_tables import TrainDeepFashion, ValidationDeepFashion
 
 
 TRAIN_JSON_PATH = r"datasets/train/annos/"
@@ -35,6 +33,7 @@ os.makedirs(VALIDATION_CROPPED_IMAGES_PATH, exist_ok=True)
 def preproces_data(json_path, image_path, num_of_images, cropped_image_path):
     """Extract data from json files"""
 
+    counter = 1
     for num in range(1, num_of_images + 1):
         json_name = json_path + str(num).zfill(6) + ".json"
         image_name = image_path + str(num).zfill(6) + ".jpg"
@@ -44,22 +43,23 @@ def preproces_data(json_path, image_path, num_of_images, cropped_image_path):
                 if i in ("source", "pair_id"):
                     continue
 
-                box = temp[i]["bounding_box"]
-                bbox = [box[0], box[1], box[2], box[3]]
+                bbox = temp[i]["bounding_box"]
                 cat = temp[i]["category_name"]
 
                 image = cv2.imread(image_name)
-                cropped_image_name = cropped_image_path + f"{uuid.uuid4()}" + ".jpg"
+                cropped_image_name = cropped_image_path + str(counter).zfill(6) + ".jpg"
 
                 try:
                     cv2.imwrite(
-                        cropped_image_name, image[box[1] : box[3], box[0] : box[2]]
+                        cropped_image_name, image[bbox[1] : bbox[3], bbox[0] : bbox[2]]
                     )
-                except AssertionError:
+                except cv2.error:
                     print(
                         f"Can't write from {image_name}, check bounding boxes correctness!"
                     )
                     continue
+
+                counter += 1
 
                 yield {
                     "categories": cat,
@@ -72,47 +72,8 @@ def preproces_data(json_path, image_path, num_of_images, cropped_image_path):
     cv2.destroyAllWindows()
 
 
-def clothes_category():
-    """Alias extendable clothes category names with generic ones"""
-
-    cat_dict = {
-        "shirt": {
-            "short sleeve top",
-            "long sleeve top",
-            "vest",
-            "sling",
-        },
-        "dress": {
-            "short sleeve dress",
-            "long sleeve dress",
-            "vest dress",
-            "sling dress",
-        },
-        "outwear": {"short sleeve outwear", "long sleeve outwear"},
-        "short": {"shorts", "trousers"},
-        "skirt": {"skirt"},
-    }
-    for key, value in cat_dict.items():
-        for i in value:
-            yield {"generic_category": key, "extended_category": i}
-
-
-def fill_table(table_name, data_dict):
-    """Fill DB table with data"""
-
-    with Session(engine) as session:
-        session.bulk_insert_mappings(
-            table_name,
-            data_dict,
-        )
-
-        session.commit()
-
-
 if __name__ == "__main__":
     create_db_and_tables()
-
-    fill_table(ClothesCategory, clothes_category())
 
     fill_table(
         TrainDeepFashion,
@@ -122,6 +83,7 @@ if __name__ == "__main__":
             TRAIN_IMAGES_NUMBER,
             TRAIN_CROPPED_IMAGES_PATH,
         ),
+        truncate=True,
     )
 
     fill_table(
@@ -132,4 +94,5 @@ if __name__ == "__main__":
             VALIDATION_IMAGES_NUMBER,
             VALIDATION_CROPPED_IMAGES_PATH,
         ),
+        truncate=True,
     )

@@ -118,16 +118,19 @@ class CrawlData(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     url: str
-    price: Optional[float]
-    image: str
+    price: Optional[str]
+    image_link: str
     category: str = Field(foreign_key="clothescategory.extended_category")
     notedarray: List = Field(default=None, sa_column=Column(ARRAY(INTEGER)))
 
+
 class KnnModel(SQLModel, table=True):
     """Table that contains Knn model training results"""
+
     id: Optional[int] = Field(default=None, primary_key=True)
     category: str = Field(foreign_key="clothescategory.extended_category")
     model: str
+
 
 class API(SQLModel, table=True):
     """Table with user provided data"""
