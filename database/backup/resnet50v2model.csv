@@ -1,0 +1,11 @@
+"id","epoch","model","best_model","results_image","accuracy","val_accuracy","loss","val_loss"
+10,1,"resnet50_model/model.h5","resnet50_model/bestmodel.h5","resnet50_model/resnet_model.png",0.6883571147918701,0.7444651126861572,0.8362582921981812,0.6554999947547913
+11,2,"resnet50_model/model.h5","resnet50_model/bestmodel.h5","resnet50_model/resnet_model.png",0.7354999780654907,0.7647441625595093,0.7200362682342529,0.6174482107162476
+12,3,"resnet50_model/model.h5","resnet50_model/bestmodel.h5","resnet50_model/resnet_model.png",0.7500428557395935,0.7637209296226501,0.683797299861908,0.6346837282180786
+13,4,"resnet50_model/model.h5","resnet50_model/bestmodel.h5","resnet50_model/resnet_model.png",0.7611857056617737,0.768744170665741,0.6449002623558044,0.6284648776054382
+14,5,"resnet50_model/model.h5","resnet50_model/bestmodel.h5","resnet50_model/resnet_model.png",0.770728588104248,0.7733953595161438,0.622809112071991,0.6472159624099731
+15,6,"resnet50_model/model.h5","resnet50_model/bestmodel.h5","resnet50_model/resnet_model.png",0.777400016784668,0.7830697894096375,0.5993250608444214,0.6207191348075867
+16,7,"resnet50_model/model.h5","resnet50_model/bestmodel.h5","resnet50_model/resnet_model.png",0.7855857014656067,0.7748837471008301,0.584044337272644,0.7546930313110352
+17,8,"resnet50_model/model.h5","resnet50_model/bestmodel.h5","resnet50_model/resnet_model.png",0.7915142774581909,0.7853953242301941,0.5696071982383728,0.6321163177490234
+18,9,"resnet50_model/model.h5","resnet50_model/bestmodel.h5","resnet50_model/resnet_model.png",0.7908856868743896,0.7883720993995667,0.5645557641983032,0.7013983130455017
+19,10,"resnet50_model/model.h5","resnet50_model/bestmodel.h5","resnet50_model/resnet_model.png",0.801885724067688,0.7789767384529114,0.5456516146659851,0.9473493099212646

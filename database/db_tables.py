@@ -81,8 +81,8 @@ class Yolov5Model(SQLModel, table=True):
     """Table that contains Yolov5 model training results"""
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    epoch: int
     best_model: str
+    epoch: int
     train_box_loss: float
     train_obj_loss: float
     train_cls_loss: float
@@ -96,20 +96,6 @@ class Yolov5Model(SQLModel, table=True):
     x_lr0: float
     x_lr1: float
     x_lr2: float
-    confusion_matrix: str
-    f1_curve: str
-    labels_correlogram: str
-    labels: str
-    p_curve: str
-    pr_curve: str
-    r_curve: str
-    results: str
-    val_batch0_labels: str
-    val_batch0_pred: str
-    val_batch1_labels: str
-    val_batch1_pred: str
-    val_batch2_labels: str
-    val_batch2_pred: str
 
 
 class CrawlData(SQLModel, table=True):
@@ -128,7 +114,7 @@ class KnnModel(SQLModel, table=True):
     """Table that contains Knn model training results"""
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    category: str = Field(foreign_key="clothescategory.extended_category")
+    category: str
     model: str
 
 

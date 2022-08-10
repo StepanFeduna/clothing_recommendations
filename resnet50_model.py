@@ -56,8 +56,8 @@ def read_sql():
     )
 
     # Reduce dataset size for testing
-    train_set = train_set.groupby("category").head(50)
-    validation_set = validation_set.groupby("category").head(10)
+    train_set = train_set.groupby("category").head(14000)
+    validation_set = validation_set.groupby("category").head(2150)
 
     print(train_set.head(5))
     print(validation_set.head(5))
@@ -139,10 +139,9 @@ def prepare_tf_dataset():
         y_col="category",
         target_size=IMAGE_SIZE,
         class_mode="categorical",
-        batch_size=64,
+        batch_size=32,
         shuffle=True,
         seed=123,
-        interpolation="lanczos",
     )
 
     # Load validation images dataset
@@ -155,7 +154,6 @@ def prepare_tf_dataset():
         batch_size=32,
         shuffle=False,
         seed=123,
-        interpolation="lanczos",
     )
 
     return train_set, validation_set
@@ -197,7 +195,7 @@ def model_training():
         metrics=["accuracy"],
     )
 
-    epochs = 3
+    epochs = 10
 
     train_set, validation_set = prepare_tf_dataset()
 

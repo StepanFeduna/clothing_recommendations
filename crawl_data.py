@@ -51,7 +51,7 @@ def read_amazon_pages():
         statement = select(ClothesCategory.extended_category).where(
             ClothesCategory.extended_category != "sling"
         )
-        clothes_categories = set(session.exec(statement))
+        clothes_categories = session.exec(statement).all()
 
     for clothes_category in clothes_categories:
         for page in range(1, 8):
@@ -64,12 +64,16 @@ def read_amazon_pages():
                 "div", {"data-asin": True, "data-component-type": "s-search-result"}
             )
             for product in products:
-                yield get_amazon_data(product, clothes_category)
+                amazon_data = get_amazon_data(product, clothes_category)
+                if amazon_data["image_link"][-4:] not in {".jpg", ".png"}:
+                    continue
+                # print(product["image_link"])
+                yield amazon_data
 
 
 if __name__ == "__main__":
     create_db_and_tables()
     fill_table(CrawlData, read_amazon_pages(), truncate=True)
 
-sleep(5)
+sleep(1)
 browser.close()
