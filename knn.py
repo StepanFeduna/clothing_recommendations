@@ -2,21 +2,15 @@
 Run the similarity calculation algorithm (K-NN) on numarray of crawled images 
 """
 
+import pickle
 import tensorflow as tf
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
-import pickle
 from keras.models import Model
 
 from sqlmodel import Session, select
 from database.database import create_db_and_tables, fill_table, engine
 from database.db_tables import ResNet50v2Model, CrawlData, KnnModel, ClothesCategory
-
-
-def sql_reader(engine, query):
-    """Read SQL query into a DataFrame."""
-
-    return pd.read_sql_query(query, con=engine)
 
 
 def read_sql():
@@ -41,7 +35,7 @@ def read_sql():
 
 def load_model():
     """Load model file from it's path link in DB"""
-    
+
     with Session(engine) as session:
         statement = select(ResNet50v2Model.best_model)
         best_model = session.exec(statement).first()
