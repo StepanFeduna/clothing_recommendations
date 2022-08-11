@@ -49,55 +49,6 @@ class ResNet50v2Model(SQLModel, table=True):
     val_loss: float
 
 
-class YoloTrain(SQLModel, table=True):
-    """Table with train data for Yolo model"""
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    category_id = int
-    xcenter = float
-    ycenter = float
-    width = float
-    height = float
-
-    train_df_id: int = Field(foreign_key="traindeepfashion.id")
-    train_df: Optional[TrainDeepFashion] = Relationship()
-
-
-class YoloValidation(SQLModel, table=True):
-    """Table with train data for Yolo model"""
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    category_id = int
-    xcenter = float
-    ycenter = float
-    width = float
-    height = float
-
-    validation_df_id: int = Field(foreign_key="validationdeepfashion.id")
-    validation_df: Optional[ValidationDeepFashion] = Relationship()
-
-
-class Yolov5Model(SQLModel, table=True):
-    """Table that contains Yolov5 model training results"""
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    best_model: str
-    epoch: int
-    train_box_loss: float
-    train_obj_loss: float
-    train_cls_loss: float
-    metrics_precision: float
-    metrics_recall: float
-    metrics_mAP_05: float
-    metrics_mAP_05_095: float
-    val_box_loss: float
-    val_obj_loss: float
-    val_cls_loss: float
-    x_lr0: float
-    x_lr1: float
-    x_lr2: float
-
-
 class CrawlData(SQLModel, table=True):
     """Table with crawled data"""
 

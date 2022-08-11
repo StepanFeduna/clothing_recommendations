@@ -1,5 +1,5 @@
-train: ../datasets/yolo_train_dataset
-val: ../datasets/yolo_valid_dataset
+train: ../datasets/train/yolo
+val: ../datasets/validation/yolo
 
 # number of classes
 nc: 5

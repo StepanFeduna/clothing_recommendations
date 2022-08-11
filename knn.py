@@ -26,7 +26,9 @@ def read_sql():
         )
         data_table = session.exec(statement).all()
 
-    crawl_data = pd.DataFrame.from_records(data_table, columns=["notedarray", "category"]).dropna()
+    crawl_data = pd.DataFrame.from_records(
+        data_table, columns=["notedarray", "category"]
+    ).dropna()
 
     print(crawl_data.head(5))
 
