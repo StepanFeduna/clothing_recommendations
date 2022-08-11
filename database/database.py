@@ -9,12 +9,6 @@ engine = create_engine(
     "postgresql://postgres:umimuv27@localhost:5432/clothing_db", echo=True
 )
 
-engine_read = create_engine(
-    "postgresql://postgres:umimuv27@localhost:5432/clothing_db",
-    echo=False,
-    future=False,
-)  # pandas.read_sql_query compatibility issue
-
 
 def create_db_and_tables():
     """Set connection with DB and create tables"""

@@ -21,8 +21,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-from database.database import create_db_and_tables, engine_read, fill_table
-from database.db_tables import ResNet50v2Model
+from sqlmodel import Session, select
+from database.database import create_db_and_tables, engine, fill_table
+from database.db_tables import (
+    ClothesCategory,
+    TrainDeepFashion,
+    ValidationDeepFashion,
+    ResNet50v2Model,
+)
 
 if not tf.config.list_physical_devices("GPU"):
     print("No GPU was detected. CNNs can be very slow without a GPU.")
@@ -35,24 +41,33 @@ IMAGE_SIZE = (IMAGE_WIDTH, IMAGE_HEIGHT)
 IMAGE_CHANNELS = 3
 
 
-def sql_reader(engine, query):
-    """Read SQL query into a DataFrame."""
-
-    return pd.read_sql_query(query, con=engine)
-
-
 def read_sql():
     """Returns a DataFrame corresponding to the result set of the query string."""
 
-    train_set = sql_reader(
-        engine_read,
-        "SELECT cropped_image AS image, generic_category AS category, boundingbox \
-        FROM TrainDeepFashion JOIN ClothesCategory ON categories = extended_category",
-    )
-    validation_set = sql_reader(
-        engine_read,
-        "SELECT cropped_image AS image, generic_category AS category, boundingbox \
-        FROM ValidationDeepFashion JOIN ClothesCategory ON categories = extended_category",
+    with Session(engine) as session:
+        train_statement = select(
+            TrainDeepFashion.cropped_image, ClothesCategory.generic_category
+        ).join_from(
+            TrainDeepFashion,
+            ClothesCategory,
+            TrainDeepFashion.categories == ClothesCategory.extended_category,
+        )
+
+        validation_statement = select(
+            ValidationDeepFashion.cropped_image, ClothesCategory.generic_category
+        ).join_from(
+            ValidationDeepFashion,
+            ClothesCategory,
+            ValidationDeepFashion.categories == ClothesCategory.extended_category,
+        )
+
+        train_table = session.exec(train_statement).all()
+        validation_table = session.exec(validation_statement).all()
+
+    train_set = pd.DataFrame.from_records(train_table, columns=["image", "category"])
+
+    validation_set = pd.DataFrame.from_records(
+        validation_table, columns=["image", "category"]
     )
 
     # Reduce dataset size for testing
