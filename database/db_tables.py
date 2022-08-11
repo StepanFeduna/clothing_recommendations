@@ -4,7 +4,7 @@ Contain all Database Models
 
 from typing import Optional, List
 
-from sqlmodel import Column, Field, SQLModel, Relationship, ARRAY, INTEGER
+from sqlmodel import Column, Field, SQLModel, ARRAY, INTEGER
 
 
 class ClothesCategory(SQLModel, table=True):
@@ -66,6 +66,26 @@ class KnnModel(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     category: str
+    model: str
+
+class Yolov5Model(SQLModel, table=True):
+    """Table that contains Yolo model training results"""
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    epoch: int
+    train_box_loss: float
+    train_obj_loss: float
+    train_cls_loss: float
+    metrics_precision: float
+    metrics_recall: float
+    metrics_map_05: float
+    metrics_map_05_095: float
+    val_box_loss: float
+    val_obj_loss: float
+    val_cls_loss: float
+    x_lr0: float
+    x_lr1: float
+    x_lr2: float
     model: str
 
 

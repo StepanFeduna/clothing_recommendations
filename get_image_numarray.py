@@ -70,7 +70,7 @@ def num_array_gen():
             print(f"Image {image_link} in row {_id} is damaged! {val_er.__class__.__name__}")
             continue
         except Exception as exception:
-            print(f"Image {image_link} in row {_id} is damaged! {exception.__class__.__name__}")
+            print(f"Oops! {exception.__class__.__name__}")
             continue
         
         yield {"id": _id, "notedarray": notedarray}
