@@ -68,6 +68,7 @@ class KnnModel(SQLModel, table=True):
     category: str
     model: str
 
+
 class Yolov5Model(SQLModel, table=True):
     """Table that contains Yolo model training results"""
 
@@ -89,13 +90,43 @@ class Yolov5Model(SQLModel, table=True):
     model: str
 
 
-class API(SQLModel, table=True):
-    """Table with user provided data"""
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    image: str
-    cropped_image: str
-    category: str = Field(foreign_key="clothescategory.extended_category")
+class UserAPIBase(SQLModel):
+    image_link: str
+    crop_image_link: str
+    category: str
+    category_id: int
     boundingbox: List = Field(sa_column=Column(ARRAY(INTEGER)))
-    notedarray: List = Field(default=None, sa_column=Column(ARRAY(INTEGER)))
-    crawl_id: int = Field(foreign_key="crawldata.id")
+    notedarray: Optional[List] = Field(default=None, sa_column=Column(ARRAY(INTEGER)))
+
+
+class UserAPI(UserAPIBase, table=True):
+    id: int = Field(default=None, primary_key=True)
+
+
+class UserAPICreate(UserAPIBase):
+    pass
+
+class UserAPIRead(UserAPIBase):
+    id: int
+
+class UserAPIUpdate(SQLModel):
+    image_link: Optional[str] = None
+    crop_image_link: Optional[str] = None
+    category: Optional[str] = None
+    category_id: Optional[int] = None
+    boundingbox: Optional[List] = Field(default=None, sa_column=Column(ARRAY(INTEGER)))
+    notedarray: Optional[List] = Field(default=None, sa_column=Column(ARRAY(INTEGER)))
+
+
+# class UserAPI(SQLModel, table=True):
+#     """Table with user provided data"""
+
+#     id: Optional[int] = Field(default=None, primary_key=True)
+
+#     name: str
+#     image: str
+    # cropped_image: str
+    # category: str = Field(foreign_key="clothescategory.extended_category")
+    # boundingbox: List = Field(sa_column=Column(ARRAY(INTEGER)))
+    # notedarray: List = Field(default=None, sa_column=Column(ARRAY(INTEGER)))
+    # crawl_id: int = Field(foreign_key="crawldata.id")
