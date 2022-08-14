@@ -4,11 +4,11 @@ This module holds the back-end logic on how to deploy a TensorFlow model as a RE
 
 import os
 import shutil
-from typing import List
+from typing import Dict, List, Sequence, Union
 import uuid
 import aiofiles
 from fastapi import FastAPI, File, HTTPException, UploadFile, Depends
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import run
 
@@ -67,13 +67,13 @@ async def on_startup():
     await init_db()
 
 
-@app.get("/")
+@app.get("/", tags=["recommend-clothes"])
 async def root():
     """Return a simple json message"""
     return {"message": "Welcome to the Clothing Recommendation API!"}
 
 
-@app.get("/images/", response_model=List[UserAPI])
+@app.get("/images/", tags=["recommend-clothes"], response_model=List[UserAPI])
 async def get_image(session: AsyncSession = Depends(get_session)):
     """Read image file"""
 
@@ -92,11 +92,16 @@ async def get_image(session: AsyncSession = Depends(get_session)):
     ]
 
 
-@app.post("/images/")
+@app.post("/images/", tags=["recommend-clothes"])
 async def add_image(
-    upload_image: UploadFile, session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
+    upload_image: Union[UploadFile, None] = None,
 ):
     """Upload image file"""
+    if not upload_image:
+        return HTTPException(404, detail="No upload file sent")
+    if upload_image.content_type not in {"image/jpeg", "image/png"}:
+        raise HTTPException(400, detail="Invalid document type")
 
     if os.path.exists(IMAGEDIR):
         shutil.rmtree(IMAGEDIR)
@@ -122,7 +127,7 @@ async def add_image(
     x = np.array(results)
 
     if len(x) == 0:
-        return "Not found"
+        return HTTPException(404, detail="Clothes not found!")
 
     for i in range(len(x)):
         category = results[i]["name"]
@@ -148,18 +153,18 @@ async def add_image(
     await session.commit()
     await session.refresh(image)
 
-    return {
-        "Message": "Found " + str(len(x)) + " results in your picture",
-        "Image": FileResponse(upload_image.name),
-    }
+    return {"message": "Found " + str(len(x)) + " results in your picture"}
 
 
-@app.patch("/images/{image_id}/")
+@app.patch("/images/{image_id}/", tags=["recommend-clothes"])
 async def generate_notedarray(
-    image_id: int, session: AsyncSession = Depends(get_session)
+    image_id: int = 1, session: AsyncSession = Depends(get_session)
 ):
-    """"""
+    """Choose clothes element from image"""
+
     result = await session.get(UserAPI, image_id)
+    if not result:
+        return HTTPException(404, detail="Image not found")
     image_data = result.dict()
 
     statement = select(ResNet50v2Model.best_model)
@@ -167,11 +172,7 @@ async def generate_notedarray(
     best_model = best_model.scalars().first()
 
     restored_model = tf.keras.models.load_model(best_model)
-    # restored_model.compile(
-    #     loss="categorical_crossentropy", optimizer="nadam", metrics=["accuracy"]
-    # )
 
-    # Reuse last activation layer to extract image characteristics
     second_model = Model(
         inputs=restored_model.input, outputs=restored_model.layers[-4].output
     )
@@ -190,12 +191,17 @@ async def generate_notedarray(
     return result
 
 
-@app.get("/images/{image_id}/")
+@app.get(
+    "/images/{image_id}/", tags=["recommend-clothes"], response_model=List[CrawlData]
+)
 async def get_recommendations(
-    image_id: int, session: AsyncSession = Depends(get_session)
+    image_id: int = 1, session: AsyncSession = Depends(get_session)
 ):
-    """Read image file"""
+    """Recommend clothes"""
+
     result = await session.get(UserAPI, image_id)
+    if not result:
+        return HTTPException(404, detail="Image not found")
     image_data = result.dict()
 
     category = image_data["category"]
@@ -204,7 +210,7 @@ async def get_recommendations(
     knn_model = knn_model.scalars().first()
     knn_model = pickle.load(open(knn_model, "rb"))
 
-    _, indices = knn_model.kneighbors([list(image_data["notedarray"])])
+    _, indices = knn_model.kneighbors([image_data["notedarray"]])
 
     crawl_statement = (
         select(CrawlData)
@@ -217,20 +223,26 @@ async def get_recommendations(
     )
 
     crawl_results = await session.execute(crawl_statement)
-    crawl_results = crawl_results.scalars().first()
+    crawl_results = crawl_results.scalars().all()
 
-    # .name, CrawlData.url, CrawlData.price, CrawlData.image_link, CrawlData.category
+    indexes = [
+        indices[0][0] + 1,
+        indices[0][1] + 1,
+        indices[0][2] + 1,
+        indices[0][3] + 1,
+    ]
 
-    # return FileResponse(image)
-    index_1 = int(indices[0][0])
-    index_2 = int(indices[0][1])
-    index_3 = int(indices[0][2])
-    index_4 = int(indices[0][3])
     return [
-        crawl_results[index_1],
-        crawl_results[index_2],
-        crawl_results[index_3],
-        crawl_results[index_4],
+        CrawlData(
+            id=crawl_result.id,
+            name=crawl_result.name,
+            category=crawl_result.category,
+            url=crawl_result.url,
+            price=crawl_result.price,
+            image_link=crawl_result.image_link,
+        )
+        for index, crawl_result in enumerate(crawl_results)
+        if index in indexes
     ]
 
 

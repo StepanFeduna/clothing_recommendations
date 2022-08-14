@@ -116,17 +116,3 @@ class UserAPIUpdate(SQLModel):
     category_id: Optional[int] = None
     boundingbox: Optional[List] = Field(default=None, sa_column=Column(ARRAY(INTEGER)))
     notedarray: Optional[List] = Field(default=None, sa_column=Column(ARRAY(INTEGER)))
-
-
-# class UserAPI(SQLModel, table=True):
-#     """Table with user provided data"""
-
-#     id: Optional[int] = Field(default=None, primary_key=True)
-
-#     name: str
-#     image: str
-    # cropped_image: str
-    # category: str = Field(foreign_key="clothescategory.extended_category")
-    # boundingbox: List = Field(sa_column=Column(ARRAY(INTEGER)))
-    # notedarray: List = Field(default=None, sa_column=Column(ARRAY(INTEGER)))
-    # crawl_id: int = Field(foreign_key="crawldata.id")
