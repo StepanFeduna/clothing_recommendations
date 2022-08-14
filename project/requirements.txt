@@ -1,5 +1,5 @@
 # Usage: pip install -r requirements.txt
-
+alembic==1.8.1
 asyncpg==0.26.0
 fastapi==0.73.0
 uvicorn==0.15.0
