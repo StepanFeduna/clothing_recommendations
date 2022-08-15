@@ -46,7 +46,7 @@ def load_model():
 
     # Reuse last activation layer to extract image characteristics
     secondmodel = Model(
-        inputs=restored_model.input, outputs=restored_model.layers[-4].output
+        inputs=restored_model.input, outputs=restored_model.layers[-7].output
     )
     secondmodel.compile(
         loss="categorical_crossentropy", optimizer="nadam", metrics=["accuracy"]

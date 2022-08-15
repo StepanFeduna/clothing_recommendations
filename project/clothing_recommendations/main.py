@@ -173,7 +173,7 @@ async def generate_notedarray(
     restored_model = tf.keras.models.load_model(best_model)
 
     second_model = Model(
-        inputs=restored_model.input, outputs=restored_model.layers[-4].output
+        inputs=restored_model.input, outputs=restored_model.layers[-7].output
     )
     second_model.compile(
         loss="categorical_crossentropy", optimizer="nadam", metrics=["accuracy"]
@@ -235,7 +235,7 @@ async def get_recommendations(
             image_link=crawl_result.image_link,
         )
         for index, crawl_result in enumerate(crawl_results)
-        if index in indexes + 1
+        if index in indexes
     ]
 
 

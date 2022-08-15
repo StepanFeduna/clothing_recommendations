@@ -28,7 +28,7 @@ def read_sql():
 
     crawl_data = pd.DataFrame.from_records(
         data_table, columns=["notedarray", "category"]
-    ).dropna()
+    )
 
     print(crawl_data.head(5))
 
