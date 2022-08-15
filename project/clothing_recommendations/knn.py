@@ -35,29 +35,6 @@ def read_sql():
     return crawl_data
 
 
-def load_model():
-    """Load model file from it's path link in DB"""
-
-    with Session(engine) as session:
-        statement = select(ResNet50v2Model.best_model)
-        best_model = session.exec(statement).first()
-
-    restored_model = tf.keras.models.load_model(best_model)
-    restored_model.compile(
-        loss="categorical_crossentropy", optimizer="nadam", metrics=["accuracy"]
-    )
-
-    # Reuse last activation layer to extract image characteristics
-    secondmodel = Model(
-        inputs=restored_model.input, outputs=restored_model.layers[-4].output
-    )
-    secondmodel.compile(
-        loss="categorical_crossentropy", optimizer="nadam", metrics=["accuracy"]
-    )
-
-    return secondmodel
-
-
 def gen_knn_model():
     """Generate results of KNN model calculations"""
 

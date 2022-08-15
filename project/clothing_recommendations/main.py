@@ -4,20 +4,16 @@ This module holds the back-end logic on how to deploy a TensorFlow model as a RE
 
 import os
 import shutil
-from typing import Dict, List, Sequence, Union
+from typing import List, Union
 import uuid
+import pickle
 import aiofiles
-from fastapi import FastAPI, File, HTTPException, UploadFile, Depends
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, UploadFile, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import run
-
-
 import numpy as np
 import torch
 import cv2
-import pickle
-import numpy as np
 import tensorflow as tf
 from keras.preprocessing import image
 from keras.models import Model
@@ -56,6 +52,8 @@ IMAGE_SIZE = (IMAGE_WIDTH, IMAGE_HEIGHT)
 
 
 def get_embedding(model, image_name):
+    """Use the trained model to generate a vector representation of the image"""
+
     img = image.load_img(image_name, target_size=IMAGE_SIZE)
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
@@ -64,6 +62,7 @@ def get_embedding(model, image_name):
 
 @app.on_event("startup")
 async def on_startup():
+    """Create DB tables at startup"""
     await init_db()
 
 
@@ -210,7 +209,8 @@ async def get_recommendations(
     knn_model = knn_model.scalars().first()
     knn_model = pickle.load(open(knn_model, "rb"))
 
-    _, indices = knn_model.kneighbors([image_data["notedarray"]])
+    _, indexes = knn_model.kneighbors([image_data["notedarray"]])
+    indexes = np.reshape(indexes, -1)
 
     crawl_statement = (
         select(CrawlData)
@@ -225,13 +225,6 @@ async def get_recommendations(
     crawl_results = await session.execute(crawl_statement)
     crawl_results = crawl_results.scalars().all()
 
-    indexes = [
-        indices[0][0] + 1,
-        indices[0][1] + 1,
-        indices[0][2] + 1,
-        indices[0][3] + 1,
-    ]
-
     return [
         CrawlData(
             id=crawl_result.id,
@@ -242,10 +235,12 @@ async def get_recommendations(
             image_link=crawl_result.image_link,
         )
         for index, crawl_result in enumerate(crawl_results)
-        if index in indexes
+        if index in indexes + 1
     ]
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     run(app, host="0.0.0.0", port=port)
+
+# python -m uvicorn main:app --reload
